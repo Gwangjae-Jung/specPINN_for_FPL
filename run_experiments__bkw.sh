@@ -11,13 +11,13 @@ do
     output_oppinn=$(printf "output__oppinn2d__bkw__seed%d.log" "$SEED")
     echo $path_config
     echo $current_work__pinn
-    nohup python experiment.py \
+    nohup python run_train.py \
         --cuda_index $CUDA_INDEX__OPPINN \
         --dim 2 \
         --seed $SEED \
         --path_config $path_config &
     echo $current_work__oppinn
-    nohup python experiment.py \
+    nohup python run_train.py \
         --cuda_index $CUDA_INDEX__PINN \
         --dim 2 \
         --seed $SEED \

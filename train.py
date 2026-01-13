@@ -9,9 +9,9 @@ from    copy                    import  deepcopy
 from    time                    import  time
 
 import  torch
-import  torch.optim             as      optim
-from    deep_numerical.utils    import  count_parameters
-from    deep_numerical.autograd import  compute_grad
+import  torch.optim                     as      optim
+from    deep_numerical.neural.utils     import  count_parameters
+from    deep_numerical.autograd         import  compute_grad
 
 sys.path.append('..')
 from    models                  import  *

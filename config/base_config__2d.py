@@ -38,7 +38,6 @@ MAX_T__DICT:    dict[str, float] = {
     'bkw':          3.0,
 }
 MAX_V__DICT:    dict[str, float] = {
-    'maxwellian':   5.0,
     'bimaxwellian': 5.0,
     'bkw':          2*pi,
 }

@@ -148,7 +148,7 @@ for APPENDIX in ["train", "validation"]:
 
     torch.save(
         {'f': data_f, 'Df': data_Df, 'Ff': data_Ff, 'elapsed_time': elapsed_time},
-        path_data/f"data__FPL{DIMENSION}D__gamma{GAMMA:.1f}__res{RESOLUTION:03d}__{APPENDIX}.pth"
+        path_data/f"data__FPL{DIMENSION}D__gamma{GAMMA:.1f}__v_max{V_MAX:.1f}__res{RESOLUTION:03d}__{APPENDIX}.pth"
     )
 
 

@@ -3,6 +3,7 @@
 ##################################################
 import  argparse
 import  warnings
+from    deprecated              import  deprecated
 from    pathlib                 import  Path
 from    itertools               import  accumulate, product
 import  matplotlib.pyplot       as      plt
@@ -48,7 +49,7 @@ STD_1    = torch.tensor([INIT_COND__STD])
 STD_2    = torch.tensor([INIT_COND__STD])
 
 
-LIST_INDEX      = [1000*k for k in range(1, 6)]
+LIST_INDEX      = [1000*k for k in (3, 5)]
 LIST_SEEDS      = list(range(5))
 LIST_COLORS     = ['red', 'orange', 'green', 'blue', 'purple']
 SIZE_SUPTITLE   = 20
@@ -60,6 +61,8 @@ STYLE_OPPINN    = 'r-'
 STYLE_PINN      = 'g-'
 DPI             = 1000
 BBOX_TO_ANCHOR  = tuple((0.5, -0.01))
+LABEL_opPINN    = 'opPINN'
+LABEL_specPINN  = 'specPINN'
 
 
 ##################################################
@@ -131,7 +134,7 @@ else:
     elif init_type=='maxwellian':
         print("Generating the analytic Maxwellian solution...")
         target  = maxwellian(DIMENSION, v, CENTER_1, STD_1, density).reshape(base_shape[1:]).cpu()
-        target  = target.unsqueeze(0).repeat(base_shape[0], *((1,) for _ in range(DIMENSION)))
+        target  = target.unsqueeze(0).repeat(base_shape[0], *(1 for _ in range(DIMENSION)))
     elif init_type=='bimaxwellian':
         print("Generating the numerical biMaxwellian solution...")
         f_init  = bimaxwellian(DIMENSION, v, CENTER_1, CENTER_2, STD_1, STD_2, density)
@@ -274,25 +277,33 @@ def validate_models(indices: list[int] = LIST_INDEX, save: bool=True) -> None:
 def draw_snapshots(index: int, seed: int=0) -> tuple[plt.Figure, plt.Axes]:
     time_indices = [0, 200, 400, 600]
     xy_ticks = [-max_v, 0, max_v]
-    xy_tick_labels = [f"{-max_v:.2f}", "0", f"{max_v:.2f}"]
+    xy_tick_labels: list[str]
+    if max_v==5.0:
+        xy_tick_labels = [f"-5", "0", "5"]
+    elif max_v==2*torch.pi:
+        xy_tick_labels = [f"$-2\\pi$", "0", f"$2\\pi$"]
+    else:
+        xy_tick_labels = [f"{-max_v:.1f}", "0", f"{max_v:.1f}"]
+        
     _cfg_imshow = {'origin': 'lower', 'extent': [-max_v, max_v, -max_v, max_v]}
     fig: plt.Figure
     axes: plt.Axes
     fig, axes = plt.subplots(3, len(time_indices), figsize=(10, 8), dpi=DPI, sharex=True, sharey=True)
     suptitle: str
     if init_type=='bkw':
-        suptitle = f"BKW solution ($\\Lambda={vhs_coeff:.2f}$)"
+        suptitle = f"BKW solution"
     elif init_type=='maxwellian':
-        suptitle = f"Maxwellian distribution ($\\Lambda={vhs_coeff:.2f}$, $\\gamma={vhs_exponent:.2f}$)"
+        suptitle = f"Maxwellian distribution"
     elif init_type=='bimaxwellian':
-        suptitle = f"Sum of two Maxwellian distributions ($\\Lambda={vhs_coeff:.2f}$, $\\gamma={vhs_exponent:.2f}$)"
+        suptitle = f"Sum of two Maxwellian distributions"
+    suptitle += f" ($\\gamma={vhs_exponent:.2f}$, $\\Lambda={vhs_coeff:.2f}$)"
     if index<NUM_EPOCHS:
         suptitle += f"\nTrained for {index} epochs"
     fig.suptitle(suptitle, fontsize=SIZE_SUPTITLE)
     
     axes[0, 0].set_ylabel("Ground truth",   fontsize=SIZE_TITLE, rotation=90)
-    axes[1, 0].set_ylabel("opPINN",         fontsize=SIZE_TITLE, rotation=90)
-    axes[2, 0].set_ylabel("PINN (ours)",    fontsize=SIZE_TITLE, rotation=90)
+    axes[1, 0].set_ylabel(LABEL_opPINN,     fontsize=SIZE_TITLE, rotation=90)
+    axes[2, 0].set_ylabel(f"{LABEL_specPINN} (ours)",   fontsize=SIZE_TITLE, rotation=90)
     for c, idx_t in enumerate(time_indices):
         axes[0, c].set_title(f"$t={grid_t[idx_t]:.1f}$", fontsize=SIZE_TITLE)
         axes[0, c].imshow(target[idx_t], **_cfg_imshow)
@@ -303,10 +314,12 @@ def draw_snapshots(index: int, seed: int=0) -> tuple[plt.Figure, plt.Axes]:
     for ax in axes.ravel():
         ax.set_xticks(xy_ticks, xy_tick_labels)
         ax.set_yticks(xy_ticks, xy_tick_labels)
+        ax.tick_params(axis='both', which='major', labelsize=SIZE_LABEL)
     fig.tight_layout()
     return fig, axes
 
 
+@deprecated(reason="The figure for relative error should be aggregated, which can be done using 'aggregate_relative_errors.ipynb'.")
 def plot_error(index: int) -> tuple[plt.Figure, plt.Axes]:
     fig: plt.Figure
     axes: plt.Axes
@@ -335,24 +348,24 @@ def plot_error(index: int) -> tuple[plt.Figure, plt.Axes]:
         axes[0].plot(
             t, abs_err__pinn,
             linewidth=LINEWIDTH, color=_c,
-            label=f"PINN (seed: {seed})",
+            label=f"{LABEL_specPINN} (seed: {seed})",
         )
         axes[0].plot(
             t, abs_err__oppinn,
             linewidth=LINEWIDTH, color=_c, linestyle=':',
-            label=f"opPINN (seed: {seed})",
+            label=f"{LABEL_opPINN} (seed: {seed})",
         )
     # Relative errors
     for seed, _c, rel_err__pinn, rel_err__oppinn in zip(LIST_SEEDS, LIST_COLORS, list_rel_errors__pinn, list_rel_errors__oppinn):
         axes[1].plot(
             t, rel_err__pinn,
             linewidth=LINEWIDTH, color=_c,
-            label=f"PINN (seed: {seed})",
+            label=f"{LABEL_specPINN} (seed: {seed})",
         )
         axes[1].plot(
             t, rel_err__oppinn,
             linewidth=LINEWIDTH, color=_c, linestyle=':',
-            label=f"opPINN (seed: {seed})",
+            label=f"{LABEL_opPINN} (seed: {seed})",
         )
 
     for ax in axes.ravel():
@@ -376,11 +389,12 @@ def plot_quantities(index: int, seed: int=0) -> tuple[plt.Figure, dict[str, plt.
     fig, axd = plt.subplot_mosaic(layout, figsize=(10, 6), layout="constrained", sharex=True)
     suptitle: str
     if init_type=='bkw':
-        suptitle = f"BKW solution ($\\Lambda={vhs_coeff:.2f}$)"
+        suptitle = f"BKW solution"
     elif init_type=='maxwellian':
-        suptitle = f"Maxwellian distribution ($\\Lambda={vhs_coeff:.2f}$, $\\gamma={vhs_exponent:.2f}$)"
+        suptitle = f"Maxwellian distribution"
     elif init_type=='bimaxwellian':
-        suptitle = f"Sum of two Maxwellian distributions ($\\Lambda={vhs_coeff:.2f}$, $\\gamma={vhs_exponent:.2f}$)"
+        suptitle = f"Sum of two Maxwellian distributions"
+    suptitle += f" ($\\gamma={vhs_exponent:.2f}$, $\\Lambda={vhs_coeff:.2f}$)"
     if index<NUM_EPOCHS:
         suptitle += f"\nTrained for {index} epochs"
     fig.suptitle(suptitle, fontsize=SIZE_SUPTITLE)
@@ -395,35 +409,35 @@ def plot_quantities(index: int, seed: int=0) -> tuple[plt.Figure, dict[str, plt.
     
     axd['density'].set_title(r'Mass density ($\rho$)', fontsize=SIZE_TITLE)
     axd['density'].plot(t, true_density+zeros_t, STYLE_TARGET, linewidth=LINEWIDTH)
-    axd['density'].plot(t, dict__mass__oppinn[(index, seed)], STYLE_OPPINN,  linewidth=LINEWIDTH, label='opPINN')
-    axd['density'].plot(t, dict__mass__pinn[  (index, seed)], STYLE_PINN,  linewidth=LINEWIDTH, label='PINN (ours)')
+    axd['density'].plot(t, dict__mass__oppinn[(index, seed)], STYLE_OPPINN,  linewidth=LINEWIDTH, label=LABEL_opPINN)
+    axd['density'].plot(t, dict__mass__pinn[  (index, seed)], STYLE_PINN,  linewidth=LINEWIDTH, label=f'{LABEL_specPINN} (ours)')
     axd['density'].set_xticks(xticks, xticks)
     axd['density'].set_xlim(xlim)
     axd['density'].set_ylim(0.0, 2*dict__mass__target[(index, seed)].max().item())
     axd['density'].grid(True)
     
-    axd['vx'].set_title(r'Bulk velocity ($v_x$)', fontsize=SIZE_TITLE)
+    axd['vx'].set_title(r'Bulk velocity ($u_x$)', fontsize=SIZE_TITLE)
     axd['vx'].plot(t, true_bulk_velocity[0]+zeros_t, STYLE_TARGET, linewidth=LINEWIDTH)
-    axd['vx'].plot(t, dict__momentum__oppinn[(index, seed)][:, 0], STYLE_OPPINN,  linewidth=LINEWIDTH, label='opPINN')
-    axd['vx'].plot(t, dict__momentum__pinn[  (index, seed)][:, 0], STYLE_PINN,  linewidth=LINEWIDTH, label='PINN (ours)')
+    axd['vx'].plot(t, dict__momentum__oppinn[(index, seed)][:, 0], STYLE_OPPINN,  linewidth=LINEWIDTH, label=LABEL_opPINN)
+    axd['vx'].plot(t, dict__momentum__pinn[  (index, seed)][:, 0], STYLE_PINN,  linewidth=LINEWIDTH, label=f'{LABEL_specPINN} (ours)')
     axd['vx'].set_xticks(xticks, xticks)
     axd['vx'].set_xlim(xlim)
-    axd['vx'].set_ylim(-_limit_bulk_speed, _limit_bulk_speed)
+    axd['vx'].set_ylim(true_bulk_velocity[0]-_limit_bulk_speed, true_bulk_velocity[0]+_limit_bulk_speed)
     axd['vx'].grid(True)
     
-    axd['vy'].set_title(r'Bulk velocity ($v_y$)', fontsize=SIZE_TITLE)
+    axd['vy'].set_title(r'Bulk velocity ($u_y$)', fontsize=SIZE_TITLE)
     axd['vy'].plot(t, true_bulk_velocity[1]+zeros_t, STYLE_TARGET, linewidth=LINEWIDTH)
-    axd['vy'].plot(t, dict__momentum__oppinn[(index, seed)][:, 1], STYLE_OPPINN,  linewidth=LINEWIDTH, label='opPINN')
-    axd['vy'].plot(t, dict__momentum__pinn[  (index, seed)][:, 1], STYLE_PINN,  linewidth=LINEWIDTH, label='PINN (ours)')
+    axd['vy'].plot(t, dict__momentum__oppinn[(index, seed)][:, 1], STYLE_OPPINN,  linewidth=LINEWIDTH, label=LABEL_opPINN)
+    axd['vy'].plot(t, dict__momentum__pinn[  (index, seed)][:, 1], STYLE_PINN,  linewidth=LINEWIDTH, label=f'{LABEL_specPINN} (ours)')
     axd['vy'].set_xticks(xticks, xticks)
     axd['vy'].set_xlim(xlim)
-    axd['vy'].set_ylim(-_limit_bulk_speed, _limit_bulk_speed)
+    axd['vy'].set_ylim(true_bulk_velocity[1]-_limit_bulk_speed, true_bulk_velocity[1]+_limit_bulk_speed)
     axd['vy'].grid(True)
     
     axd['energy'].set_title(r'Energy density ($E$)', fontsize=SIZE_TITLE)
     axd['energy'].plot(t, true_energy_density+zeros_t, STYLE_TARGET, linewidth=LINEWIDTH)
-    axd['energy'].plot(t, dict__energy__oppinn[(index, seed)], STYLE_OPPINN,  linewidth=LINEWIDTH, label='opPINN')
-    axd['energy'].plot(t, dict__energy__pinn[  (index, seed)], STYLE_PINN,  linewidth=LINEWIDTH, label='PINN (ours)')
+    axd['energy'].plot(t, dict__energy__oppinn[(index, seed)], STYLE_OPPINN,  linewidth=LINEWIDTH, label=LABEL_opPINN)
+    axd['energy'].plot(t, dict__energy__pinn[  (index, seed)], STYLE_PINN,  linewidth=LINEWIDTH, label=f'{LABEL_specPINN} (ours)')
     axd['energy'].set_xlabel(r'$t$', fontsize=SIZE_TITLE)
     axd['energy'].set_xticks(xticks, xticks)
     axd['energy'].set_xlim(xlim)
@@ -431,8 +445,8 @@ def plot_quantities(index: int, seed: int=0) -> tuple[plt.Figure, dict[str, plt.
     axd['energy'].grid(True)
     
     axd['entropy'].set_title(r'Entropy density ($H$)', fontsize=SIZE_TITLE)
-    axd['entropy'].plot(t, dict__entropy__oppinn[(index, seed)], STYLE_OPPINN,  linewidth=LINEWIDTH, label='opPINN')
-    axd['entropy'].plot(t, dict__entropy__pinn[  (index, seed)], STYLE_PINN,  linewidth=LINEWIDTH, label='PINN (ours)')
+    axd['entropy'].plot(t, dict__entropy__oppinn[(index, seed)], STYLE_OPPINN,  linewidth=LINEWIDTH, label=LABEL_opPINN)
+    axd['entropy'].plot(t, dict__entropy__pinn[  (index, seed)], STYLE_PINN,  linewidth=LINEWIDTH, label=f'{LABEL_specPINN} (ours)')
     axd['entropy'].set_xlabel(r'$t$', fontsize=SIZE_TITLE)
     axd['entropy'].set_xticks(xticks, xticks)
     axd['entropy'].set_xlim(xlim)
@@ -458,11 +472,9 @@ _cfg_savefig = {'dpi': DPI, 'bbox_inches': 'tight'}
 for index in LIST_INDEX:
     path_images = Path().cwd() / "images" / sample_t / get_prefix(index)
     if path_images.exists() is False:   path_images.mkdir(parents=True, exist_ok=True)
-    fig_snapshots, axes_snapshots = draw_snapshots(index)
-    fig_errors, axes_errors = plot_error(index)
+    fig_snapshots, axes_snapshots   = draw_snapshots(index)
     fig_quantities, axes_quantities = plot_quantities(index)
     fig_snapshots.savefig(path_images/"snapshots.pdf", **_cfg_savefig)
-    fig_errors.savefig(path_images/"errors.pdf", **_cfg_savefig)
     fig_quantities.savefig(path_images/"quantities.pdf", **_cfg_savefig)
 
 

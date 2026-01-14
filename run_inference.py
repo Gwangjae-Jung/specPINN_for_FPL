@@ -10,7 +10,7 @@ LIST_GAMMA      = [-3.0+k for k in range(5)]
 LIST_SAMPLE_T   = ['fixed_t',]
 LIST_RES_T      = [601]
 LIST_RES_V      = [64]
-LIST_INIT_TYPE  = ['bimaxwellian', 'bkw']
+LIST_INIT_TYPE  = ['bimaxwellian', 'maxwellian', 'bkw']
 
 
 parser = argparse.ArgumentParser()
@@ -26,7 +26,7 @@ for gamma, sample_t, res_t, res_v, init_type in tqdm(
             LIST_INIT_TYPE
         )
     ):
-    if init_type=='bkw' and gamma!=0.0: continue
+    if init_type in ['bkw', 'maxwellian'] and gamma!=0.0: continue
     subprocess.run([
         "python", "inference.py",
         "--cuda_index", str(cuda_index),

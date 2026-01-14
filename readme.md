@@ -60,10 +60,10 @@ Comment:
 ## References
 
 [1] Jae Yong Lee, Juhi Jang, Hyung Ju Hwang,  
-*(opPINN: Physics-informed neural network with operator learning to approximate solutions to the Fokker–Planck–Landau equation)[https://doi.org/10.1016/j.jcp.2023.112031]*, Journal of Computational Physics, Volume 480, 2023, 112031.
+(*opPINN: Physics-informed neural network with operator learning to approximate solutions to the Fokker–Planck–Landau equation*)[https://doi.org/10.1016/j.jcp.2023.112031], Journal of Computational Physics, Volume 480, 2023, 112031.
 
 [2] L. Pareschi, G. Russo, G. Toscani,  
-*(Fast Spectral Methods for the Fokker–Planck–Landau Collision Operator)[https://www.sciencedirect.com/science/article/pii/S0021999100966129]*, Journal of Computational Physics, Volume 165, Issue 1, 2000, Pages 216–236.
+(*Fast Spectral Methods for the Fokker–Planck–Landau Collision Operator)[https://www.sciencedirect.com/science/article/pii/S0021999100966129*], Journal of Computational Physics, Volume 165, Issue 1, 2000, Pages 216–236.
 
 <!--
 Comment:

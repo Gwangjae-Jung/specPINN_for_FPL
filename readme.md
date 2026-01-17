@@ -56,6 +56,8 @@ Comment:
 - If numerical results are available, consider referencing them explicitly (e.g., "as demonstrated in Section X").
 -->
 
+<img src="./images/framework_specPINN.png" width="600px" height="400px" title="The specPINN framework">
+
 
 ## References
 

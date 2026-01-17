@@ -470,7 +470,7 @@ validate_models()
 
 _cfg_savefig = {'dpi': DPI, 'bbox_inches': 'tight'}
 for index in LIST_INDEX:
-    path_images = Path().cwd() / "images" / sample_t / get_prefix(index)
+    path_images = Path().cwd() / "inference_figures" / sample_t / get_prefix(index)
     if path_images.exists() is False:   path_images.mkdir(parents=True, exist_ok=True)
     fig_snapshots, axes_snapshots   = draw_snapshots(index)
     fig_quantities, axes_quantities = plot_quantities(index)

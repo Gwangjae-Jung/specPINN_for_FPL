@@ -13,3 +13,5 @@ solutions
 pretrained_operators__density_1.0
 result/numerical**/**.pth
 opPINN_step1__bkw/
+
+_current_workspace__inhomogeneous/

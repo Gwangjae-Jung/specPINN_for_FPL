@@ -19,7 +19,7 @@ Recent studies have proposed deep-learning-based solvers for the FPL equation.
 In particular, **opPINN** [1] introduces a two-stage strategy in which two neural networks (or neural operators) are trained to approximate the linear operators composing the FPL collision operator
 (referred to as *Step 1* in the original paper).
 
-<img src="./images/framework_opPINN.png" width="1280px" height="720px" title="The opPINN framework to train the solution to the Fokker-Planck-Landau equation.">
+<img src="./_readme__images/framework_opPINN.png" width="1280px" height="720px" title="The opPINN framework to train the solution to the Fokker-Planck-Landau equation.">
 
 <!--
 Comment:
@@ -30,7 +30,7 @@ Comment:
 In contrast, **specPINN bypasses this surrogate-modeling step entirely**.
 Instead of learning an approximation of the collision operator, we employ the **fast spectral method** [2], a well-established quasi-linear numerical approach, to compute the collision term of the distribution function **on-the-fly during PINN training**.
 
-<img src="./images/framework_specPINN.png" width="1280px" height="720px" title="The specPINN framework to train the solution to the Fokker-Planck-Landau equation.">
+<img src="./_readme__images/framework_specPINN.png" width="1280px" height="720px" title="The specPINN framework to train the solution to the Fokker-Planck-Landau equation.">
 
 
 <!--
@@ -60,6 +60,12 @@ Comment:
 - The phrase "may lead to faster or more stable training" is deliberately cautious and academically appropriate.
 - If numerical results are available, consider referencing them explicitly (e.g., "as demonstrated in Section X").
 -->
+
+## Experimental results
+The following figure shows the relative $L^2_v$ error of the predicted solution over time.
+For the case of soft potential, the neural networks trained with the specPINN framework outperform the neural networks trained with the opPINN framework.
+
+<img src="./_readme__images/aggregated_relative_error__epoch5000.pdf" width="1280px" height="720px" title="The relative $L^2_v$ error of the neural networks trained with the opPINN framework and the specPINN framework.">
 
 ## References
 

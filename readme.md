@@ -65,7 +65,7 @@ Comment:
 The following figure shows the relative $L^2_v$ error of the predicted solution over time.
 For the case of soft potential, the neural networks trained with the specPINN framework outperform the neural networks trained with the opPINN framework.
 
-<img src="./_readme__images/aggregated_relative_error__epoch5000.pdf" width="1280px" height="720px" title="The relative $L^2_v$ error of the neural networks trained with the opPINN framework and the specPINN framework.">
+<img src="./_readme__images/aggregated_relative_error__epoch5000.png" width="1280px" height="720px" title="The relative $L^2_v$ error of the neural networks trained with the opPINN framework and the specPINN framework.">
 
 ## References
 

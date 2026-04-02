@@ -65,6 +65,14 @@ LABEL_opPINN    = 'opPINN'
 LABEL_specPINN  = 'specPINN'
 
 
+DICT_COEFF_STR: dict[float, str] = {
+    5.0:    "5",
+    3.0:    "3",
+    1.0:    "1",
+    5/16:   "5/16",
+}
+
+
 ##################################################
 base_shape:     tuple[int, ...] = tuple((res_t, *(res_v for _ in range(DIMENSION))))
 config:         FurtherConfig   = FurtherConfig(f"./config/config__{DIMENSION}d__gamma{gamma:.1f}__{init_type}.yaml")
@@ -291,12 +299,12 @@ def draw_snapshots(index: int, seed: int=0) -> tuple[plt.Figure, plt.Axes]:
     fig, axes = plt.subplots(3, len(time_indices), figsize=(10, 8), dpi=DPI, sharex=True, sharey=True)
     suptitle: str
     if init_type=='bkw':
-        suptitle = f"BKW solution"
+        suptitle = f"Initial condition (5.3)"
     elif init_type=='maxwellian':
-        suptitle = f"Maxwellian distribution"
+        suptitle = f"Initial condition (5.2)"
     elif init_type=='bimaxwellian':
-        suptitle = f"Sum of two Maxwellian distributions"
-    suptitle += f" ($\\gamma={vhs_exponent:.2f}$, $\\Lambda={vhs_coeff:.2f}$)"
+        suptitle = f"Initial condition (5.1)"
+    suptitle += f" ($\\gamma={int(vhs_exponent)}$, $\\Lambda={DICT_COEFF_STR[vhs_coeff]}$)"
     if index<NUM_EPOCHS:
         suptitle += f"\nTrained for {index} epochs"
     fig.suptitle(suptitle, fontsize=SIZE_SUPTITLE)

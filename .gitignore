@@ -2,6 +2,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,python,jupyternotebooks
 
 ### Custom ###
+opPINN_step1/
+opPINN_step1__legacy/
 pretrained_operators/
 result__fixed_t/
 
